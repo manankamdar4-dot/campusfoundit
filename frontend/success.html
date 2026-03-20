@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta name="darkreader-lock">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="color-scheme" content="light only">
+  <meta name="description" content="Report confirmation from CampusFoundIt.">
+  <title>Success — CampusFoundIt</title>
+  <link rel="stylesheet" href="css/style.css?v=2">
+</head>
+<body style="background-color: #FFFFFF !important; color: #1C1C1C !important; min-height: 100vh; display: flex; flex-direction: column;">
+  <!-- Navigation -->
+  <nav class="nav">
+    <div class="container nav-container">
+      <a href="index.html" class="nav-brand">
+        CampusFoundIt
+      </a>
+      <div class="nav-links">
+        <a href="index.html" class="nav-link">Home</a>
+        <a href="report-lost.html" class="nav-link">Report Lost Item</a>
+        <a href="report-found.html" class="nav-link">Report Found Item</a>
+        <a href="browse.html" class="nav-link">Browse Items</a>
+        <a href="admin.html" class="nav-link text-muted">Admin</a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Success Message Content -->
+  <main style="flex: 1; display: flex; align-items: center; justify-content: center;" class="section">
+    <div class="section-narrow text-center card" style="max-width: 500px; padding: var(--space-12) var(--space-8);">
+      
+      <div style="width: 48px; height: 48px; background: var(--c-success-100); color: var(--c-success-600); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto var(--space-6); font-size: var(--text-2xl);">
+        ✓
+      </div>
+      
+      <h1 id="successHeading" class="mb-4 text-2xl">Report Submitted Successfully</h1>
+      <p id="successMessage" class="text-muted mb-8" style="font-size: var(--text-base);">Your submission has been securely logged into the NMIMS CampusFoundIt framework.</p>
+      
+      <div style="display: flex; gap: var(--space-4); justify-content: center; flex-wrap: wrap;">
+        <a href="index.html" class="btn btn-primary" style="min-width: 140px;">Return Home</a>
+        <a href="browse.html" class="btn btn-outline" style="min-width: 140px;">Directory</a>
+      </div>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <div class="container flex-justify-between">
+      <p><strong>CampusFoundIt</strong> &copy; 2026</p>
+    </div>
+  </footer>
+
+  <script src="js/config.js"></script>
+  <script src="js/main.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const urlParams = new URLSearchParams(window.location.search);
+      const type = urlParams.get('type');
+      
+      const heading = document.getElementById('successHeading');
+      const message = document.getElementById('successMessage');
+      
+      if (type === 'lost') {
+        heading.textContent = 'Lost Report Secured';
+        message.innerHTML = 'Your report is active. <strong>The algorithmic framework will continually scan incoming reports.</strong> We will notify you via official email if a high-probability match occurs.';
+      } else if (type === 'found') {
+        heading.textContent = 'Found Report Secured';
+        message.innerHTML = 'Thank you for documenting this item. We are cross-referencing available data. <strong>You will be notified via email when the verified owner successfully claims it.</strong>';
+      }
+    });
+  </script>
+</body>
+</html>

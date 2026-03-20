@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta name="darkreader-lock">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="color-scheme" content="light only">
+  <meta name="description" content="Report a lost item at NMIMS Mumbai. Provide detailed attributes and a private verification detail to securely recover your belongings.">
+  <meta property="og:title" content="Report a Lost Item — CampusFoundIt">
+  <meta property="og:description" content="Securely report and match lost items at NMIMS Mumbai.">
+  <title>Report Lost Item — CampusFoundIt</title>
+  <link rel="stylesheet" href="css/style.css?v=2">
+</head>
+<body style="background-color: #FFFFFF !important; color: #1C1C1C !important;">
+  <!-- Navigation -->
+  <nav class="nav">
+    <div class="container nav-container">
+      <a href="index.html" class="nav-brand">
+        CampusFoundIt
+      </a>
+      <div class="nav-links">
+        <a href="index.html" class="nav-link">Home</a>
+        <a href="report-lost.html" class="nav-link active">Report Lost Item</a>
+        <a href="report-found.html" class="nav-link">Report Found Item</a>
+        <a href="browse.html" class="nav-link">Browse Items</a>
+        <a href="admin.html" class="nav-link text-muted">Admin</a>
+      </div>
+    </div>
+  </nav>
+
+  <header class="section bg-subtle" style="padding-bottom: var(--space-20);">
+    <div class="container relative" style="z-index: 20;">
+      <h1 class="hero-title">Report a Lost Item</h1>
+      <p class="hero-subtitle">Provide accurate details below. Our algorithm will continuously scan the system and notify you if a match is submitted.</p>
+    </div>
+    
+    <!-- Diagonal SVG Divider -->
+    <div class="diagonal-divider">
+      <svg data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 120" preserveAspectRatio="none">
+        <path d="M1200 120L0 16.48 0 0 1200 0 1200 120z" class="shape-fill"></path>
+      </svg>
+    </div>
+  </header>
+
+  <main class="section" style="padding-top: var(--space-8);">
+    <div class="section-narrow">
+
+      <div class="card">
+        <form id="reportLostForm" enctype="multipart/form-data">
+          
+          <h3 class="mb-4">Contact Information</h3>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="name" class="form-label">Full Name <span class="req">*</span></label>
+              <input type="text" id="name" name="name" class="form-input" required placeholder="Jane Doe">
+            </div>
+            <div class="form-group">
+              <label for="email" class="form-label">NMIMS Email <span class="req">*</span></label>
+              <input type="email" id="email" name="email" class="form-input" required placeholder="jane.doe@nmims.edu.in">
+            </div>
+          </div>
+          
+          <div class="form-group">
+            <label for="phone" class="form-label">Phone Number <span class="req">*</span></label>
+            <input type="tel" id="phone" name="phone" class="form-input" required placeholder="+91 98765 43210">
+          </div>
+
+          <hr style="border: 0; border-top: 1px solid var(--c-gray-200); margin: var(--space-8) 0;">
+          
+          <h3 class="mb-4">Item Details</h3>
+          
+          <div class="form-group">
+            <label for="itemName" class="form-label">Item Name <span class="req">*</span></label>
+            <input type="text" id="itemName" name="item_name" class="form-input" required placeholder="e.g. MacBook Pro M2, Leather Wallet">
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="category" class="form-label">Category <span class="req">*</span></label>
+              <select id="category" name="category" class="form-select" required>
+                <option value="" disabled selected>Select category</option>
+                <option value="ID Card">ID Card</option>
+                <option value="Laptop">Laptop</option>
+                <option value="Wallet">Wallet</option>
+                <option value="Phone">Phone</option>
+                <option value="Keys">Keys</option>
+                <option value="Umbrella">Umbrella</option>
+                <option value="Earphones">Earphones</option>
+                <option value="Bag">Bag</option>
+                <option value="Water Bottle">Water Bottle</option>
+                <option value="Other">Other</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="color" class="form-label">Primary Color <span class="req">*</span></label>
+              <input type="text" id="color" name="color" class="form-input" required placeholder="Black, Silver, Blue">
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="brand" class="form-label">Brand <span class="text-muted" style="font-weight: 400;">(Optional)</span></label>
+              <input type="text" id="brand" name="brand" class="form-input" placeholder="Apple, Fastrack, etc.">
+            </div>
+            <div class="form-group">
+              <label for="dateLost" class="form-label">Date Lost <span class="req">*</span></label>
+              <input type="date" id="dateLost" name="date_lost" class="form-input" required>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="locationLost" class="form-label">Location Lost <span class="req">*</span></label>
+            <select id="locationLost" name="location_lost" class="form-select" required>
+              <option value="" disabled selected>Select location</option>
+              <option value="Library">Library</option>
+              <option value="Canteen">Canteen</option>
+              <option value="Classroom">Classroom</option>
+              <option value="Lecture Hall">Lecture Hall</option>
+              <option value="Washroom">Washroom</option>
+              <option value="Parking">Parking</option>
+              <option value="Corridor">Corridor</option>
+              <option value="Gym">Gym</option>
+              <option value="Auditorium">Auditorium</option>
+              <option value="Other">Other</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="description" class="form-label">Additional Description <span class="text-muted" style="font-weight: 400;">(Optional)</span></label>
+            <textarea id="description" name="description" class="form-textarea" placeholder="Include any specific attributes that help identify the item."></textarea>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Reference Photo <span class="text-muted" style="font-weight: 400;">(Optional)</span></label>
+            <div class="file-upload" onclick="document.getElementById('photo').click()">
+              <p class="text-sm text-muted">Click to upload an image of the item (if you have one)</p>
+              <p id="fileName" class="text-sm mt-2" style="color: var(--c-success-600); display: none; font-weight: 500;"></p>
+              <input type="file" id="photo" name="photo" accept="image/*" onchange="document.getElementById('fileName').textContent = this.files[0] ? this.files[0].name : ''; document.getElementById('fileName').style.display = this.files[0] ? 'block' : 'none';">
+            </div>
+          </div>
+
+          <hr style="border: 0; border-top: 1px solid var(--c-gray-200); margin: var(--space-8) 0;">
+
+          <div class="form-group">
+            <label for="hiddenDetail" class="form-label" style="color: var(--c-navy-800);">
+              Private Verification Detail <span class="req">*</span>
+            </label>
+            <p class="form-hint mb-4">
+              Enter one secret detail only the true owner would know—for example, a specific scratch, a sticker, or the lock screen wallpaper. <strong>This acts as your proof of ownership and is never shown publicly.</strong>
+            </p>
+            <textarea id="hiddenDetail" name="hidden_detail" class="form-textarea" required placeholder="E.g., The phone has a crack on the bottom left corner, and the wallpaper is a picture of a golden retriever."></textarea>
+          </div>
+
+          <div class="text-center mt-8">
+            <button type="submit" class="btn btn-primary" id="submitBtn" style="width: 100%;">Submit Lost Report</button>
+          </div>
+
+        </form>
+      </div>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <div class="container flex-justify-between">
+      <p><strong>CampusFoundIt</strong> &copy; 2026</p>
+    </div>
+  </footer>
+
+  <script src="js/config.js"></script>
+  <script src="js/main.js"></script>
+  <script src="js/report-lost.js"></script>
+</body>
+</html>
