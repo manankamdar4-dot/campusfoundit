@@ -1,0 +1,191 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ──────────────────────────────────────────────────────────────────────────
+    // CampusFoundIt Firestore Rules (serverless)
+    // ──────────────────────────────────────────────────────────────────────────
+    //
+    // Requirements implemented:
+    // - Anyone can read `found_items` and `lost_items` (public browse)
+    // - Only authenticated users can write to `lost_items`, `found_items`, `claim_requests`
+    // - Only document owner can update their own lost/found report
+    // - Only admins can read private verification detail (implemented via separate secrets doc)
+    // - Only admins can update claim_request status
+    // - Users can read/write only their own notifications
+    // - No user can modify their own role field
+    //
+    // IMPORTANT LIMITATION:
+    // Firestore rules cannot hide a single field inside a readable document.
+    // To make `hidden_detail` admin-only, the app stores it in:
+    //   `lost_item_secrets/{lostItemId}` (admin-only)
+    // and does NOT store `hidden_detail` inside `lost_items`.
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isAdmin() {
+      // We cannot use custom claims because there is no backend.
+      // So we rely on a single hardcoded admin email.
+      return isSignedIn() && request.auth.token.email == "admin@campusfoundit.edu";
+    }
+
+    function isOwnerUid(ownerUid) {
+      return isSignedIn() && ownerUid == request.auth.uid;
+    }
+
+    function isOwnerByLegacyEmail(emailField) {
+      // Backwards compatibility: existing docs might not have owner_uid yet.
+      return isSignedIn()
+        && emailField is string
+        && request.auth.token.email is string
+        && emailField == request.auth.token.email;
+    }
+
+    // ── USERS ────────────────────────────────────────────────────────────────
+    match /users/{userId} {
+      // Users can read their own profile; admin can read any.
+      allow read: if isOwnerUid(userId) || isAdmin();
+
+      // Create: user creates their own doc.
+      // - Students can only create with role="student"
+      // - The hardcoded admin email can bootstrap an admin profile with role="admin"
+      allow create: if isOwnerUid(userId)
+        && (
+          (request.resource.data.role == "student")
+          || (isAdmin() && request.resource.data.role == "admin")
+        );
+
+      // Update: user updates their own doc, but cannot change role.
+      allow update: if isOwnerUid(userId)
+        && request.resource.data.role == resource.data.role;
+
+      // Delete: admin only
+      allow delete: if isAdmin();
+    }
+
+    // ── LOST ITEMS (public) ──────────────────────────────────────────────────
+    match /lost_items/{id} {
+      // Public browse
+      allow read: if true;
+
+      // Create: signed-in users only
+      allow create: if isSignedIn()
+        && request.resource.data.owner_uid == request.auth.uid
+        && request.resource.data.email == request.auth.token.email;
+
+      // Update: owner (or admin) only
+      allow update: if isAdmin()
+        || isOwnerUid(resource.data.owner_uid)
+        || (resource.data.owner_uid == null && isOwnerByLegacyEmail(resource.data.email));
+
+      // Delete: owner (or admin) only
+      allow delete: if isAdmin()
+        || isOwnerUid(resource.data.owner_uid)
+        || (resource.data.owner_uid == null && isOwnerByLegacyEmail(resource.data.email));
+    }
+
+    // ── LOST ITEM SECRETS (admin-only) ───────────────────────────────────────
+    // Stores private verification details (hidden_detail).
+    match /lost_item_secrets/{lostId} {
+      // Only admins can read secret verification details.
+      allow read: if isAdmin();
+
+      // Students can write their own secret details at report time.
+      // (This keeps secrets private while still allowing the student to submit.)
+      allow create, update: if isSignedIn()
+        && request.resource.data.owner_uid == request.auth.uid;
+
+      // Admins can also manage secret docs (e.g., migration/maintenance).
+      allow create, update: if isAdmin();
+    }
+
+    // ── FOUND ITEMS (public) ─────────────────────────────────────────────────
+    match /found_items/{id} {
+      // Public browse
+      allow read: if true;
+
+      // Create: signed-in users only
+      allow create: if isSignedIn()
+        && request.resource.data.owner_uid == request.auth.uid
+        // If the finder chooses "anonymous", email may be null in the public doc.
+        && (
+          request.resource.data.email == request.auth.token.email
+          || request.resource.data.email == null
+        );
+
+      // Update/delete: owner (or admin) only
+      allow update, delete: if isAdmin()
+        || isOwnerUid(resource.data.owner_uid)
+        || (resource.data.owner_uid == null && isOwnerByLegacyEmail(resource.data.email));
+    }
+
+    // ── FOUND ITEM SECRETS (admin-only) ──────────────────────────────────────
+    // Stores finder identity when "Anonymous finder" is enabled.
+    match /found_item_secrets/{foundId} {
+      allow read: if isAdmin();
+      allow create, update: if isSignedIn()
+        && request.resource.data.owner_uid == request.auth.uid;
+
+      // Admins can also manage secret docs.
+      allow create, update: if isAdmin();
+    }
+
+    // ── CLAIM REQUESTS ───────────────────────────────────────────────────────
+    match /claim_requests/{id} {
+      // Create: any signed-in user can submit a claim request for a found item.
+      allow create: if isSignedIn()
+        && request.resource.data.claimant_uid == request.auth.uid
+        && request.resource.data.claimant_email == request.auth.token.email
+        && request.resource.data.status == "pending";
+
+      // Read:
+      // - admin can read all
+      // - claimant can read their own requests
+      allow read: if isAdmin()
+        || (isSignedIn() && resource.data.claimant_uid == request.auth.uid);
+
+      // Update:
+      // - only admin can change status or mark returned workflow
+      allow update: if isAdmin();
+
+      allow delete: if isAdmin();
+    }
+
+    // ── NOTIFICATIONS ────────────────────────────────────────────────────────
+    match /notifications/{id} {
+      // Users can only read their own notifications
+      allow read: if isSignedIn() && resource.data.uid == request.auth.uid;
+
+      // Create: user can create their own notification docs (rare),
+      // and admin can create notifications for anyone.
+      //
+      // Additionally, to support the real-time workflow without a backend:
+      // When a claimant submits a claim request, they are allowed to create
+      // a notification for the finder (and for themselves) ONLY if:
+      // - `related_claim_request_id` points to a pending claim request
+      // - that claim request belongs to the authenticated user
+      // - and the notification `uid` matches the claim request's `found_owner_uid`
+      allow create: if isAdmin()
+        || (isSignedIn() && request.resource.data.uid == request.auth.uid)
+        || (
+          isSignedIn()
+          && request.resource.data.related_claim_request_id is string
+          && request.resource.data.related_claim_request_id != ""
+          && get(/databases/$(database)/documents/claim_requests/$(request.resource.data.related_claim_request_id)).exists
+          && get(/databases/$(database)/documents/claim_requests/$(request.resource.data.related_claim_request_id)).data.claimant_uid == request.auth.uid
+          && get(/databases/$(database)/documents/claim_requests/$(request.resource.data.related_claim_request_id)).data.found_owner_uid == request.resource.data.uid
+          && get(/databases/$(database)/documents/claim_requests/$(request.resource.data.related_claim_request_id)).data.status == "pending"
+        );
+
+      // Update: user can only update their own (e.g., mark read)
+      allow update: if isSignedIn()
+        && resource.data.uid == request.auth.uid
+        && request.resource.data.uid == resource.data.uid;
+
+      // Delete: admin only (or user can delete their own if you want)
+      allow delete: if isAdmin();
+    }
+  }
+}

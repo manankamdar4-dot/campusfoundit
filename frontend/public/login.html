@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>CampusFoundIt | Sign In</title>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Manrope:wght@700;800&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script>
+tailwind.config = {
+  darkMode: "class",
+  theme: {
+    extend: {
+      colors: {
+        "primary": "#690008", "primary-container": "#8b1a1a",
+        "on-primary": "#ffffff", "on-primary-container": "#ff9a91",
+        "tertiary": "#003450", "tertiary-container": "#004c71",
+        "on-tertiary": "#ffffff",
+        "surface": "#f9f9f9", "surface-container-low": "#f3f3f3",
+        "surface-container-lowest": "#ffffff", "surface-container": "#eeeeee",
+        "on-surface": "#1a1c1c", "on-surface-variant": "#58413f",
+        "outline-variant": "#e0bfbc", "error": "#ba1a1a",
+      },
+      fontFamily: { headline: ["Manrope"], body: ["Inter"], label: ["Inter"] }
+    }
+  }
+}
+</script>
+<style>
+  .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+  body { font-family: 'Inter', sans-serif; min-height: 100dvh; }
+  h1, h2, h3 { font-family: 'Manrope', sans-serif; }
+
+  /* Tab active state */
+  .auth-tab { transition: all 0.3s ease; }
+  .auth-tab.active { background: #690008; color: white; box-shadow: 0 4px 12px rgba(105,0,8,0.3); }
+  .auth-tab:not(.active) { background: #f3f3f3; color: #58413f; }
+  .auth-tab:not(.active):hover { background: #e8e8e8; }
+
+  /* Form panel visibility */
+  .auth-panel { display: none; animation: fadeIn 0.3s ease; }
+  .auth-panel.active { display: block; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+  /* Loading spinner */
+  .spinner { width: 20px; height: 20px; border: 3px solid rgba(255,255,255,0.3); border-top-color: white; border-radius: 50%; animation: spin 0.6s linear infinite; display: inline-block; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* Toast */
+  .toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(100px); opacity: 0; transition: all 0.4s ease; z-index: 9999; }
+  .toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+</style>
+</head>
+<body class="bg-surface flex items-center justify-center p-4 md:p-8">
+
+<!-- Toast Notification -->
+<div id="toast" class="toast bg-on-surface text-white px-6 py-3 rounded-lg shadow-2xl text-sm font-semibold max-w-sm text-center"></div>
+
+<!-- Main Card -->
+<div class="w-full max-w-md">
+  <!-- Logo -->
+  <div class="text-center mb-8">
+    <div class="inline-flex items-center gap-2 mb-4">
+      <span class="material-symbols-outlined text-primary text-4xl">school</span>
+    </div>
+    <h1 class="text-3xl font-extrabold text-primary tracking-tight">CampusFoundIt</h1>
+    <p class="text-on-surface-variant text-sm mt-1">NMIMS Mumbai — Official Lost & Found Portal</p>
+  </div>
+
+  <!-- Auth Card -->
+  <div class="bg-white rounded-2xl shadow-xl border border-outline-variant/20 overflow-hidden">
+    <!-- Tab Switcher -->
+    <div class="flex p-2 bg-surface-container-low gap-2">
+      <button class="auth-tab active flex-1 py-3 rounded-xl text-sm font-bold tracking-wide flex items-center justify-center gap-2" data-target="studentPanel" id="tabStudent">
+        <span class="material-symbols-outlined text-[18px]">person</span> Student
+      </button>
+      <button class="auth-tab flex-1 py-3 rounded-xl text-sm font-bold tracking-wide flex items-center justify-center gap-2" data-target="adminPanel" id="tabAdmin">
+        <span class="material-symbols-outlined text-[18px]">admin_panel_settings</span> Admin
+      </button>
+    </div>
+
+    <!-- Student Login Panel -->
+    <div class="auth-panel active p-8" id="studentPanel">
+      <div class="mb-6">
+        <h2 class="text-xl font-extrabold text-on-surface">Student Sign In</h2>
+        <p class="text-xs text-on-surface-variant mt-1">Access lost/found reporting and browse features.</p>
+      </div>
+      <form id="studentLoginForm" class="space-y-5">
+        <div>
+          <label class="block text-xs font-bold uppercase tracking-widest text-on-surface-variant mb-2" for="studentEmail">Email Address</label>
+          <input class="w-full bg-surface-container-low border border-transparent rounded-lg px-4 py-3 text-sm font-semibold focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all" id="studentEmail" placeholder="your.name@nmims.edu.in" required type="email"/>
+        </div>
+        <div>
+          <label class="block text-xs font-bold uppercase tracking-widest text-on-surface-variant mb-2" for="studentPassword">Password</label>
+          <input class="w-full bg-surface-container-low border border-transparent rounded-lg px-4 py-3 text-sm font-semibold focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all" id="studentPassword" placeholder="••••••••" required type="password" minlength="6"/>
+        </div>
+        <button class="w-full bg-primary text-on-primary font-extrabold py-4 rounded-lg hover:bg-primary-container transition-all shadow-lg shadow-primary/20 text-sm uppercase tracking-widest flex items-center justify-center gap-2" id="studentLoginBtn" type="submit">
+          Sign In
+        </button>
+      </form>
+      <div class="mt-6 text-center">
+        <p class="text-xs text-on-surface-variant">Don't have an account? <button class="text-primary font-bold hover:underline" id="showStudentSignup">Create Account</button></p>
+      </div>
+
+      <!-- Student Sign Up (hidden by default) -->
+      <form id="studentSignupForm" class="space-y-5 mt-6 hidden">
+        <div class="mb-4">
+          <h3 class="text-lg font-extrabold text-on-surface">Create Student Account</h3>
+          <p class="text-xs text-on-surface-variant mt-1">Register with your university email.</p>
+        </div>
+        <div>
+          <label class="block text-xs font-bold uppercase tracking-widest text-on-surface-variant mb-2" for="signupName">Full Name</label>
+          <input class="w-full bg-surface-container-low border border-transparent rounded-lg px-4 py-3 text-sm font-semibold focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all" id="signupName" placeholder="John Doe" required type="text"/>
+        </div>
+        <div>
+          <label class="block text-xs font-bold uppercase tracking-widest text-on-surface-variant mb-2" for="signupEmail">Email Address</label>
+          <input class="w-full bg-surface-container-low border border-transparent rounded-lg px-4 py-3 text-sm font-semibold focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all" id="signupEmail" placeholder="your.name@nmims.edu.in" required type="email"/>
+        </div>
+        <div>
+          <label class="block text-xs font-bold uppercase tracking-widest text-on-surface-variant mb-2" for="signupPassword">Password</label>
+          <input class="w-full bg-surface-container-low border border-transparent rounded-lg px-4 py-3 text-sm font-semibold focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all" id="signupPassword" placeholder="Min 6 characters" required type="password" minlength="6"/>
+        </div>
+        <button class="w-full bg-primary text-on-primary font-extrabold py-4 rounded-lg hover:bg-primary-container transition-all shadow-lg shadow-primary/20 text-sm uppercase tracking-widest flex items-center justify-center gap-2" id="signupBtn" type="submit">
+          Create Account
+        </button>
+        <p class="text-center text-xs text-on-surface-variant">Already have an account? <button type="button" class="text-primary font-bold hover:underline" id="showStudentLogin">Sign In</button></p>
+      </form>
+    </div>
+
+    <!-- Admin Login Panel -->
+    <div class="auth-panel p-8" id="adminPanel">
+      <div class="mb-6">
+        <div class="flex items-center gap-2 mb-2">
+          <span class="material-symbols-outlined text-primary text-lg">shield</span>
+          <h2 class="text-xl font-extrabold text-on-surface">Admin Authentication</h2>
+        </div>
+        <p class="text-xs text-on-surface-variant">Restricted access. Authorized personnel only.</p>
+      </div>
+      <form id="adminLoginForm" class="space-y-5">
+        <div>
+          <label class="block text-xs font-bold uppercase tracking-widest text-on-surface-variant mb-2" for="adminPassword">Master Passkey</label>
+          <input class="w-full bg-surface-container-low border border-transparent rounded-lg px-4 py-3 text-sm font-semibold focus:bg-white focus:outline-none focus:ring-2 focus:ring-tertiary focus:border-tertiary transition-all" id="adminPassword" placeholder="Enter admin passkey..." required type="password"/>
+        </div>
+        <button class="w-full bg-tertiary text-on-tertiary font-extrabold py-4 rounded-lg hover:bg-tertiary-container transition-all shadow-lg shadow-tertiary/20 text-sm uppercase tracking-widest flex items-center justify-center gap-2" id="adminLoginBtn" type="submit">
+          <span class="material-symbols-outlined text-[18px]">lock_open</span> Authenticate
+        </button>
+      </form>
+      <div class="mt-6 p-3 bg-surface-container-low rounded-lg border border-outline-variant/20">
+        <p class="text-[10px] text-on-surface-variant font-bold uppercase tracking-widest text-center">
+          <span class="material-symbols-outlined text-[12px] align-middle">info</span>
+          Admin accounts are provisioned by the system administrator.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <p class="text-center text-xs text-on-surface-variant mt-6">© 2024 NMIMS Mumbai. All rights reserved.</p>
+</div>
+
+<!-- Firebase SDKs -->
+<script src="https://www.gstatic.com/firebasejs/10.10.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.10.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.10.0/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.10.0/firebase-storage-compat.js"></script>
+<script src="js/firebase-init.js"></script>
+<script>
+// ─── Login Page Logic ───
+const tabs = document.querySelectorAll('.auth-tab');
+const panels = document.querySelectorAll('.auth-panel');
+
+tabs.forEach(tab => {
+  tab.addEventListener('click', () => {
+    tabs.forEach(t => t.classList.remove('active'));
+    panels.forEach(p => p.classList.remove('active'));
+    tab.classList.add('active');
+    document.getElementById(tab.dataset.target).classList.add('active');
+  });
+});
+
+// Toggle sign-up / sign-in
+document.getElementById('showStudentSignup').addEventListener('click', () => {
+  document.getElementById('studentLoginForm').classList.add('hidden');
+  document.getElementById('studentSignupForm').classList.remove('hidden');
+});
+document.getElementById('showStudentLogin').addEventListener('click', () => {
+  document.getElementById('studentSignupForm').classList.add('hidden');
+  document.getElementById('studentLoginForm').classList.remove('hidden');
+});
+
+// Toast helper
+function showToast(msg, type) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast show ' + (type === 'error' ? 'bg-error' : 'bg-primary') + ' text-white px-6 py-3 rounded-lg shadow-2xl text-sm font-semibold max-w-sm text-center';
+  setTimeout(() => t.classList.remove('show'), 3500);
+}
+
+// Set loading state on button
+function setLoading(btn, loading) {
+  if (loading) {
+    btn.dataset.origText = btn.innerHTML;
+    btn.innerHTML = '<span class="spinner"></span>';
+    btn.disabled = true;
+  } else {
+    btn.innerHTML = btn.dataset.origText || 'Submit';
+    btn.disabled = false;
+  }
+}
+
+// ── Student Login ──
+document.getElementById('studentLoginForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const btn = document.getElementById('studentLoginBtn');
+  setLoading(btn, true);
+  try {
+    const cfi = window.cfi;
+    const email = document.getElementById('studentEmail').value;
+    const pwd = document.getElementById('studentPassword').value;
+    const cred = await cfi.auth.signInWithEmailAndPassword(email, pwd);
+
+    // Ensure profile exists, then enforce that admin cannot use student tab
+    const { role } = await cfi.ensureUserDoc(cred.user);
+    if (role === 'admin') {
+      showToast('Please use the Admin tab to sign in.', 'error');
+      await cfi.auth.signOut();
+      setLoading(btn, false);
+      return;
+    }
+    showToast('Welcome back!', 'success');
+    // Students always go to Browse after login (required by spec)
+    window.location.href = 'browse.html';
+  } catch (err) {
+    showToast(err.message || 'Login failed.', 'error');
+    setLoading(btn, false);
+  }
+});
+
+// ── Student Sign Up ──
+document.getElementById('studentSignupForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const btn = document.getElementById('signupBtn');
+  setLoading(btn, true);
+  try {
+    const cfi = window.cfi;
+    const name = document.getElementById('signupName').value;
+    const email = document.getElementById('signupEmail').value;
+    const pwd = document.getElementById('signupPassword').value;
+    const cred = await cfi.auth.createUserWithEmailAndPassword(email, pwd);
+    await cred.user.updateProfile({ displayName: name });
+    // Create user document with student role
+    await cfi.db.collection('users').doc(cred.user.uid).set({
+      name: name,
+      email: email,
+      role: 'student',
+      created_at: firebase.firestore.FieldValue.serverTimestamp()
+    });
+    showToast('Account created! Redirecting...', 'success');
+    setTimeout(() => { window.location.href = 'browse.html'; }, 800);
+  } catch (err) {
+    showToast(err.message || 'Sign up failed.', 'error');
+    setLoading(btn, false);
+  }
+});
+
+// ── Admin Login ──
+document.getElementById('adminLoginForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const btn = document.getElementById('adminLoginBtn');
+  setLoading(btn, true);
+  try {
+    const cfi = window.cfi;
+    const email = cfi.ADMIN_EMAIL; // Hardcoded admin email (required by spec)
+    const pwd = document.getElementById('adminPassword').value;
+    const cred = await cfi.auth.signInWithEmailAndPassword(email, pwd);
+
+    // Ensure profile exists. If the admin user doc is missing, we create it as admin.
+    // (Rules will allow this ONLY for the hardcoded admin email.)
+    const ref = cfi.db.collection('users').doc(cred.user.uid);
+    const snap = await ref.get();
+    if (!snap.exists) {
+      await ref.set({
+        name: cred.user.displayName || "Admin",
+        email: cred.user.email || email,
+        role: "admin",
+        created_at: firebase.firestore.FieldValue.serverTimestamp(),
+      }, { merge: true });
+    }
+
+    const afterSnap = await ref.get();
+    const role = afterSnap.exists ? (afterSnap.data().role || null) : null;
+    if (role !== 'admin') {
+      showToast('This account does not have admin privileges.', 'error');
+      await cfi.auth.signOut();
+      setLoading(btn, false);
+      return;
+    }
+    showToast('Admin authenticated.', 'success');
+    window.location.href = 'admin.html';
+  } catch (err) {
+    showToast(err.message || 'Admin login failed.', 'error');
+    setLoading(btn, false);
+  }
+});
+
+// If already logged in, redirect
+window.cfi.auth.onAuthStateChanged(async (user) => {
+  if (user) {
+    const { role } = await window.cfi.ensureUserDoc(user);
+    window.location.href = role === 'admin' ? 'admin.html' : 'browse.html';
+  }
+});
+</script>
+</body></html>

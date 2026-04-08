@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>University Lost &amp; Found | Submit Found Item</title>
+<!-- Google Fonts -->
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;700;800&amp;family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-primary-fixed": "#410003",
+                        "tertiary-fixed-dim": "#96ccf8",
+                        "tertiary": "#003450",
+                        "surface-container-high": "#e8e8e8",
+                        "on-surface": "#1a1c1c",
+                        "surface-variant": "#e2e2e2",
+                        "on-tertiary-fixed": "#001e30",
+                        "on-secondary": "#ffffff",
+                        "on-primary-fixed-variant": "#8a1a1a",
+                        "error": "#ba1a1a",
+                        "on-tertiary-fixed-variant": "#004b70",
+                        "outline": "#8c716e",
+                        "primary-fixed": "#ffdad6",
+                        "surface-dim": "#dadada",
+                        "on-tertiary": "#ffffff",
+                        "on-secondary-fixed-variant": "#343d96",
+                        "error-container": "#ffdad6",
+                        "surface-container-low": "#f3f3f3",
+                        "primary": "#690008",
+                        "on-secondary-container": "#27308a",
+                        "inverse-primary": "#ffb3ac",
+                        "on-secondary-fixed": "#000767",
+                        "background": "#f9f9f9",
+                        "secondary-container": "#959efd",
+                        "surface": "#f9f9f9",
+                        "secondary-fixed": "#e0e0ff",
+                        "on-surface-variant": "#58413f",
+                        "surface-container-lowest": "#ffffff",
+                        "tertiary-fixed": "#cae6ff",
+                        "secondary": "#4c56af",
+                        "primary-fixed-dim": "#ffb3ac",
+                        "on-error-container": "#93000a",
+                        "inverse-surface": "#2f3131",
+                        "on-background": "#1a1c1c",
+                        "secondary-fixed-dim": "#bdc2ff",
+                        "inverse-on-surface": "#f0f1f1",
+                        "surface-container-highest": "#e2e2e2",
+                        "on-error": "#ffffff",
+                        "on-tertiary-container": "#86bce7",
+                        "on-primary-container": "#ff9a91",
+                        "primary-container": "#8b1a1a",
+                        "surface-container": "#eeeeee",
+                        "surface-bright": "#f9f9f9",
+                        "tertiary-container": "#004c71",
+                        "surface-tint": "#ac322e",
+                        "outline-variant": "#e0bfbc",
+                        "on-primary": "#ffffff"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "fontFamily": {
+                        "headline": ["Manrope"],
+                        "body": ["Inter"],
+                        "label": ["Inter"]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body { font-family: 'Inter', sans-serif; }
+        h1, h2, h3, .headline { font-family: 'Manrope', sans-serif; }
+        
+        /* Custom file input styling */
+        input[type="file"]::file-selector-button {
+            display: none;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-surface-container-lowest text-on-surface min-h-screen">
+<!-- Auth Loading Screen -->
+<div id="authLoadingScreen" class="fixed inset-0 z-[9999] bg-white flex flex-col items-center justify-center transition-opacity duration-400">
+<span class="material-symbols-outlined text-tertiary text-5xl mb-4 animate-pulse">school</span>
+<p class="text-sm font-bold text-on-surface-variant tracking-widest uppercase">Authenticating...</p>
+</div>
+<!-- TopAppBar -->
+<header class="fixed top-0 w-full z-50 bg-white/70 backdrop-blur-md shadow-sm h-16 flex items-center justify-between px-6 border-b border-outline-variant/20">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-tertiary" data-icon="school">school</span>
+<span class="text-xl font-extrabold text-tertiary tracking-tighter cursor-pointer font-['Manrope']" onclick="window.location.href='index.html'">University Lost &amp; Found</span>
+</div>
+<nav class="hidden md:flex items-center gap-8 text-sm font-['Inter'] font-semibold">
+<a class="text-neutral-600 hover:text-tertiary transition-colors" href="index.html">Home</a>
+<a class="text-neutral-600 hover:text-tertiary transition-colors" href="report-lost.html" data-auth-role="student">Lost</a>
+<a class="text-tertiary font-bold" href="#">Found</a>
+<a class="text-neutral-600 hover:text-tertiary transition-colors" href="browse.html">Browse</a>
+</nav>
+<div class="flex items-center gap-4">
+<div class="relative" id="notifWrap">
+  <button
+    id="notifBellBtn"
+    class="relative w-10 h-10 rounded-lg bg-surface-container-lowest border border-outline-variant/30 hover:bg-surface-container-low transition-colors grid place-items-center"
+    aria-label="Notifications"
+    type="button"
+  >
+    <span class="material-symbols-outlined text-[20px] text-on-surface-variant">notifications</span>
+    <span
+      id="notifBellBadge"
+      class="hidden absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 rounded-full bg-primary text-white text-[10px] font-black grid place-items-center"
+      >0</span
+    >
+  </button>
+  <div
+    id="notifDropdown"
+    class="hidden absolute right-0 mt-2 w-80 bg-white rounded-xl shadow-xl border border-outline-variant/20 overflow-hidden"
+  >
+    <div class="px-4 py-3 bg-surface-container-low border-b border-outline-variant/20 flex items-center justify-between">
+      <p class="text-sm font-extrabold">Notifications</p>
+      <button id="notifMarkAllReadBtn" class="text-xs font-bold text-primary hover:underline" type="button">
+        Mark all read
+      </button>
+    </div>
+    <div id="notifList" class="max-h-96 overflow-auto"></div>
+  </div>
+</div>
+<span class="text-xs font-semibold text-on-surface-variant hidden md:inline" id="authUserName"></span>
+<button class="text-xs font-bold bg-red-50 text-primary px-3 py-1.5 rounded-lg hover:bg-red-100 transition-colors hidden items-center gap-1" id="authLogoutBtn"><span class="material-symbols-outlined text-[14px]">logout</span> Logout</button>
+</div>
+</header>
+<main class="pt-24 pb-32 max-w-3xl mx-auto px-6">
+<div class="mb-10 text-center">
+<div class="inline-flex items-center justify-center p-3 bg-tertiary/10 text-tertiary rounded-full mb-4">
+<span class="material-symbols-outlined text-2xl" data-icon="volunteer_activism">volunteer_activism</span>
+</div>
+<h1 class="text-4xl md:text-5xl font-extrabold tracking-tight text-on-surface font-headline mb-4">Log Found Asset</h1>
+<p class="text-on-surface-variant font-['Inter'] max-w-lg mx-auto">Thank you for your integrity. Please securely hand over high-value items to the Administration Office after logging them here.</p>
+</div>
+<form id="reportFoundForm" class="space-y-6">
+<!-- Image Upload Zone (Dominant UI Element for 'Found') -->
+<div class="bg-surface border-2 border-dashed border-outline-variant/60 rounded-2xl p-8 hover:bg-surface-container-low hover:border-tertiary/50 transition-all cursor-pointer group relative overflow-hidden" id="dropzone">
+<input accept="image/*" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" id="itemImage" type="file"/>
+<div class="flex flex-col items-center justify-center text-center space-y-4 relative z-0">
+<div class="w-16 h-16 rounded-full bg-surface-container flex items-center justify-center group-hover:bg-tertiary/10 group-hover:scale-110 transition-all duration-300">
+<span class="material-symbols-outlined text-3xl text-on-surface-variant group-hover:text-tertiary transition-colors" data-icon="add_a_photo">add_a_photo</span>
+</div>
+<div>
+<h3 class="font-bold text-on-surface font-['Inter'] text-lg">Upload Photographic Evidence</h3>
+<p class="text-sm text-on-surface-variant mt-1 font-['Inter']">Drag &amp; drop an image, or click to browse.</p>
+</div>
+<span class="bg-tertiary text-white text-xs font-bold px-4 py-2 rounded-full shadow-sm">Select File</span>
+</div>
+</div>
+<div class="bg-white p-8 rounded-2xl shadow-[0_4px_24px_-8px_rgba(0,0,0,0.05)] border border-outline-variant/20 space-y-8">
+<!-- Details Group -->
+<div class="space-y-6">
+<div class="space-y-2">
+<label class="block text-sm font-black uppercase tracking-widest text-on-surface/70 font-['Inter']" for="itemName">Brief Nomenclature</label>
+<input class="w-full bg-surface-container-low border border-transparent rounded-lg px-4 py-3 text-lg font-bold focus:bg-white focus:outline-none focus:ring-2 focus:ring-tertiary focus:border-tertiary transition-all font-['Inter']" id="itemName" placeholder="e.g., Black NorthFace Backpack" required="" type="text"/>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+<div class="space-y-2">
+<label class="block text-sm font-bold text-on-surface-variant font-['Inter']" for="itemCategory">Category Alignment</label>
+<select class="w-full bg-surface-container-low border border-transparent rounded-lg px-4 py-3 text-sm font-semibold text-on-surface focus:bg-white focus:outline-none focus:ring-2 focus:ring-tertiary focus:border-tertiary transition-all appearance-none font-['Inter']" id="itemCategory" required="">
+<option disabled="" selected="" value="">Select Classification...</option>
+<option value="electronics">Electronics</option>
+<option value="apparel">Apparel &amp; Accessories</option>
+<option value="documents">Official Documents</option>
+<option value="other">Other Items</option>
+</select>
+</div>
+<div class="space-y-2">
+<label class="block text-sm font-bold text-on-surface-variant font-['Inter']" for="foundDate">Discovery Date</label>
+<input class="w-full bg-surface-container-low border border-transparent rounded-lg px-4 py-3 text-sm text-on-surface font-semibold focus:bg-white focus:outline-none focus:ring-2 focus:ring-tertiary focus:border-tertiary transition-all font-['Inter']" id="foundDate" required="" type="date"/>
+</div>
+</div>
+</div>
+<!-- Location & State Group -->
+<div class="space-y-6 pt-6 border-t border-outline-variant/30">
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+<div class="space-y-2">
+<label class="block text-sm font-bold text-on-surface-variant font-['Inter']" for="foundLocation">Exact Discovery Location</label>
+<input class="w-full bg-surface-container-low border border-transparent rounded-lg px-4 py-3 text-sm focus:bg-white focus:outline-none focus:ring-2 focus:ring-tertiary focus:border-tertiary transition-all font-['Inter'] text-on-surface" id="foundLocation" placeholder="e.g., Library Block A, Desk 12" required="" type="text"/>
+</div>
+<div class="space-y-2">
+<label class="block text-sm font-bold text-on-surface-variant font-['Inter']" for="currentLocation">Current Securing Location</label>
+<select class="w-full bg-tertiary/5 border border-tertiary/20 rounded-lg px-4 py-3 text-sm font-semibold text-tertiary focus:bg-white focus:outline-none focus:ring-2 focus:ring-tertiary transition-all appearance-none font-['Inter']" id="currentLocation" required="">
+<option value="admin">Handed to Admin Office (Recommended)</option>
+<option value="security">Handed to Campus Security</option>
+<option value="self">With Me (Requires follow-up)</option>
+</select>
+</div>
+</div>
+<div class="space-y-2 mt-4">
+<label class="block text-sm font-bold text-on-surface-variant font-['Inter']" for="addDetails">Additional Visible Details (Do NOT reveal secrets)</label>
+<textarea class="w-full bg-surface-container-low border border-transparent rounded-lg px-4 py-3 text-sm focus:bg-white focus:outline-none focus:ring-2 focus:ring-tertiary transition-all min-h-[100px] font-['Inter'] resize-none text-on-surface" id="addDetails" placeholder="Describe general appearance, brand logo, color. Omit specific passwords, inner contents, or hidden marks to ensure accurate verification by the owner."></textarea>
+</div>
+
+<div class="flex items-start gap-3 mt-4 p-4 rounded-lg bg-surface-container-low border border-outline-variant/20">
+  <input id="anonymousFinder" type="checkbox" class="mt-1 w-5 h-5 text-tertiary rounded border-outline-variant focus:ring-tertiary focus:ring-offset-background cursor-pointer"/>
+  <label for="anonymousFinder" class="text-sm text-on-surface-variant font-['Inter'] cursor-pointer select-none">
+    <span class="font-bold text-on-surface">Remain anonymous to students.</span>
+    Your name and email will be hidden from the public card and from the claimant. Only the admin can see your identity.
+  </label>
+</div>
+</div>
+</div>
+<!-- Submit Actions -->
+<div class="pt-4">
+<button id="submitBtn" class="w-full bg-tertiary text-white font-extrabold text-lg py-5 rounded-lg hover:bg-tertiary-container hover:text-on-tertiary-container transition-all shadow-xl shadow-tertiary/20 flex items-center justify-center gap-3 group uppercase tracking-widest" type="submit">
+<span class="material-symbols-outlined group-hover:-translate-y-1 transition-transform" data-icon="upload">upload</span>
+                Log Found Item to Registry
+            </button>
+<p class="text-center text-xs text-on-surface-variant mt-4 font-semibold font-['Inter']">
+                By logging this item, you agree to the <a class="underline" href="#">Campus Property Handling Protocol</a>.
+            </p>
+</div>
+</form>
+</main>
+<!-- Bottom Navigation (Mobile Only) -->
+<nav class="md:hidden fixed bottom-0 w-full z-50 border-t border-neutral-100 bg-white h-20 flex justify-around items-center pb-safe px-4 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)]">
+<a class="flex flex-col items-center justify-center text-neutral-500 py-1 px-4" href="index.html">
+<span class="material-symbols-outlined" data-icon="home">home</span>
+<span class="font-['Inter'] text-[11px] uppercase tracking-wider font-semibold">Home</span>
+</a>
+<a class="flex flex-col items-center justify-center text-neutral-500 py-1 px-4" href="report-lost.html">
+<span class="material-symbols-outlined" data-icon="search_off">search_off</span>
+<span class="font-['Inter'] text-[11px] uppercase tracking-wider font-semibold">Lost</span>
+</a>
+<a class="flex flex-col items-center justify-center text-tertiary bg-tertiary/10 rounded-lg py-1 px-4 scale-95 duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="inventory_2">inventory_2</span>
+<span class="font-['Inter'] text-[11px] uppercase tracking-wider font-semibold">Found</span>
+</a>
+<a class="flex flex-col items-center justify-center text-neutral-500 py-1 px-4" href="browse.html">
+<span class="material-symbols-outlined" data-icon="explore">explore</span>
+<span class="font-['Inter'] text-[11px] uppercase tracking-wider font-semibold">Browse</span>
+</a>
+<a class="flex flex-col items-center justify-center text-neutral-500 py-1 px-4" href="admin.html">
+<span class="material-symbols-outlined" data-icon="admin_panel_settings">admin_panel_settings</span>
+<span class="font-['Inter'] text-[11px] uppercase tracking-wider font-semibold">Admin</span>
+</a>
+</nav>
+<script src="https://www.gstatic.com/firebasejs/10.10.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.10.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.10.0/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.10.0/firebase-storage-compat.js"></script>
+<script src="js/firebase-init.js"></script>
+<script src="js/auth-guard.js"></script>
+<script src="js/notifications.js"></script>
+<script src="js/report-found.js"></script>
+</body></html>

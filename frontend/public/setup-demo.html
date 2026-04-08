@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Setup Demo Accounts</title>
+  <style>
+    body { font-family: sans-serif; padding: 40px; }
+    button { padding: 10px 20px; font-size: 16px; margin: 10px; cursor: pointer; }
+    #log { margin-top: 20px; color: #333; white-space: pre-wrap; background: #f0f0f0; padding: 15px; border-radius: 8px;}
+  </style>
+</head>
+<body>
+  <h1>CampusFoundIt - Demo Setup</h1>
+  <p>Click the buttons below to create the demo accounts in your Firebase project. They use the same passwords.</p>
+  
+  <button id="setupAdmin">Create/Reset Admin Demo</button>
+  <button id="setupStudent">Create/Reset Student Demo</button>
+  <br><br>
+  <a href="login.html">Go to Login Screen &rarr;</a>
+
+  <div id="log">Logs will appear here...</div>
+
+  <!-- Firebase Scripts -->
+  <script src="https://www.gstatic.com/firebasejs/10.10.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.10.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.10.0/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.10.0/firebase-storage-compat.js"></script>
+  <script src="js/firebase-init.js"></script>
+
+  <script>
+    function logMessage(msg) {
+      document.getElementById('log').innerText += '\n' + msg;
+    }
+
+    async function createDemoAccount(email, name, role) {
+      const pwd = 'password123';
+      try {
+        logMessage(`Attempting to create ${role} account: ${email}...`);
+        
+        let user;
+        try {
+          const cred = await window.auth.createUserWithEmailAndPassword(email, pwd);
+          user = cred.user;
+          logMessage(`Auth account created! UID: ${user.uid}`);
+        } catch (authErr) {
+          // If already exists, we sign in instead to sync the document just in case
+          if (authErr.code === 'auth/email-already-in-use') {
+             logMessage(`Account already exists. Signing in instead...`);
+             const cred = await window.auth.signInWithEmailAndPassword(email, pwd);
+             user = cred.user;
+          } else {
+             throw authErr;
+          }
+        }
+
+        await user.updateProfile({ displayName: name });
+        
+        // Sync Firestore role structure
+        logMessage(`Syncing ${role} role to Firestore for UID: ${user.uid}...`);
+        await window.db.collection('users').doc(user.uid).set({
+          name: name,
+          email: email,
+          role: role,
+          created_at: firebase.firestore.FieldValue.serverTimestamp()
+        });
+
+        logMessage(`✅ Successfully configured ${role}:\n   Email: ${email}\n   Pass:  ${pwd}`);
+        await window.auth.signOut(); // reset session
+      } catch (err) {
+        logMessage(`❌ Error: ${err.message}`);
+      }
+    }
+
+    document.getElementById('setupAdmin').addEventListener('click', () => {
+      createDemoAccount('admin@campusfoundit.edu', 'Admin Officer', 'admin');
+    });
+
+    document.getElementById('setupStudent').addEventListener('click', () => {
+      createDemoAccount('student@nmims.edu.in', 'Demo Student', 'student');
+    });
+  </script>
+</body>
+</html>

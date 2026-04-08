@@ -1,0 +1,116 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ──────────────────────────────────────────────────────────────────────────
+    // CampusFoundIt Firestore Rules (serverless)
+    // (Duplicated here in case you deploy rules from /backend)
+    // ──────────────────────────────────────────────────────────────────────────
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isAdmin() {
+      return isSignedIn() && request.auth.token.email == "admin@campusfoundit.edu";
+    }
+
+    function isOwnerUid(ownerUid) {
+      return isSignedIn() && ownerUid == request.auth.uid;
+    }
+
+    function isOwnerByLegacyEmail(emailField) {
+      return isSignedIn()
+        && emailField is string
+        && request.auth.token.email is string
+        && emailField == request.auth.token.email;
+    }
+
+    match /users/{userId} {
+      allow read: if isOwnerUid(userId) || isAdmin();
+
+      allow create: if isOwnerUid(userId)
+        && (
+          (request.resource.data.role == "student")
+          || (isAdmin() && request.resource.data.role == "admin")
+        );
+
+      allow update: if isOwnerUid(userId)
+        && request.resource.data.role == resource.data.role;
+
+      allow delete: if isAdmin();
+    }
+
+    match /lost_items/{id} {
+      allow read: if true;
+      allow create: if isSignedIn()
+        && request.resource.data.owner_uid == request.auth.uid
+        && request.resource.data.email == request.auth.token.email;
+
+      allow update, delete: if isAdmin()
+        || isOwnerUid(resource.data.owner_uid)
+        || (resource.data.owner_uid == null && isOwnerByLegacyEmail(resource.data.email));
+    }
+
+    match /lost_item_secrets/{lostId} {
+      allow read: if isAdmin();
+      allow create, update: if isSignedIn()
+        && request.resource.data.owner_uid == request.auth.uid;
+
+      allow create, update: if isAdmin();
+    }
+
+    match /found_items/{id} {
+      allow read: if true;
+      allow create: if isSignedIn()
+        && request.resource.data.owner_uid == request.auth.uid
+        && (
+          request.resource.data.email == request.auth.token.email
+          || request.resource.data.email == null
+        );
+
+      allow update, delete: if isAdmin()
+        || isOwnerUid(resource.data.owner_uid)
+        || (resource.data.owner_uid == null && isOwnerByLegacyEmail(resource.data.email));
+    }
+
+    match /found_item_secrets/{foundId} {
+      allow read: if isAdmin();
+      allow create, update: if isSignedIn()
+        && request.resource.data.owner_uid == request.auth.uid;
+
+      allow create, update: if isAdmin();
+    }
+
+    match /claim_requests/{id} {
+      allow create: if isSignedIn()
+        && request.resource.data.claimant_uid == request.auth.uid
+        && request.resource.data.claimant_email == request.auth.token.email
+        && request.resource.data.status == "pending";
+
+      allow read: if isAdmin()
+        || (isSignedIn() && resource.data.claimant_uid == request.auth.uid);
+
+      allow update, delete: if isAdmin();
+    }
+
+    match /notifications/{id} {
+      allow read: if isSignedIn() && resource.data.uid == request.auth.uid;
+      allow create: if isAdmin()
+        || (isSignedIn() && request.resource.data.uid == request.auth.uid)
+        || (
+          isSignedIn()
+          && request.resource.data.related_claim_request_id is string
+          && request.resource.data.related_claim_request_id != ""
+          && get(/databases/$(database)/documents/claim_requests/$(request.resource.data.related_claim_request_id)).exists
+          && get(/databases/$(database)/documents/claim_requests/$(request.resource.data.related_claim_request_id)).data.claimant_uid == request.auth.uid
+          && get(/databases/$(database)/documents/claim_requests/$(request.resource.data.related_claim_request_id)).data.found_owner_uid == request.resource.data.uid
+          && get(/databases/$(database)/documents/claim_requests/$(request.resource.data.related_claim_request_id)).data.status == "pending"
+        );
+      allow update: if isSignedIn()
+        && resource.data.uid == request.auth.uid
+        && request.resource.data.uid == resource.data.uid;
+      allow delete: if isAdmin();
+    }
+  }
+}

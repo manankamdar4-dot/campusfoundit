@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html class="light" lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>CampusFoundIt | Browse</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;700;800&family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
+      rel="stylesheet"
+    />
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              primary: "#690008",
+              "primary-container": "#8b1a1a",
+              "on-primary": "#ffffff",
+              tertiary: "#003450",
+              "tertiary-container": "#004c71",
+              surface: "#f9f9f9",
+              background: "#f9f9f9",
+              "surface-container": "#eeeeee",
+              "surface-container-low": "#f3f3f3",
+              "surface-container-lowest": "#ffffff",
+              "surface-container-high": "#e8e8e8",
+              "on-surface": "#1a1c1c",
+              "on-surface-variant": "#58413f",
+              "outline-variant": "#e0bfbc",
+              outline: "#8c716e",
+              error: "#ba1a1a",
+            },
+            fontFamily: { headline: ["Manrope"], body: ["Inter"], label: ["Inter"] },
+          },
+        },
+      };
+    </script>
+    <style>
+      .material-symbols-outlined {
+        font-variation-settings: "FILL" 0, "wght" 400, "GRAD" 0, "opsz" 24;
+      }
+      body {
+        font-family: "Inter", sans-serif;
+        min-height: max(884px, 100dvh);
+      }
+      h1,
+      h2,
+      h3,
+      .headline {
+        font-family: "Manrope", sans-serif;
+      }
+      .no-scrollbar::-webkit-scrollbar {
+        display: none;
+      }
+      .no-scrollbar {
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+      }
+    </style>
+  </head>
+  <body class="bg-background text-on-surface min-h-screen">
+    <!-- Auth Loading Screen -->
+    <div
+      id="authLoadingScreen"
+      class="fixed inset-0 z-[9999] bg-white flex flex-col items-center justify-center transition-opacity duration-400"
+    >
+      <span class="material-symbols-outlined text-primary text-5xl mb-4 animate-pulse">school</span>
+      <p class="text-sm font-bold text-on-surface-variant tracking-widest uppercase">Authenticating...</p>
+    </div>
+
+    <!-- TopAppBar -->
+    <header class="fixed top-0 w-full z-50 bg-white/70 backdrop-blur-md shadow-sm h-16 flex items-center justify-between px-6">
+      <div class="flex items-center gap-3">
+        <span class="material-symbols-outlined text-primary">school</span>
+        <span
+          class="text-xl font-extrabold text-primary tracking-tighter cursor-pointer font-['Manrope']"
+          onclick="window.location.href='index.html'"
+          >CampusFoundIt</span
+        >
+      </div>
+
+      <nav class="hidden md:flex items-center gap-8 text-sm font-['Inter'] font-semibold">
+        <a class="text-neutral-600 hover:text-primary transition-colors" href="index.html">Home</a>
+        <a class="text-neutral-600 hover:text-primary transition-colors" href="report-lost.html" data-auth-role="student">Lost</a>
+        <a class="text-neutral-600 hover:text-primary transition-colors" href="report-found.html" data-auth-role="student">Found</a>
+        <a class="text-primary font-bold" href="#">Browse</a>
+        <a class="text-neutral-600 hover:text-primary transition-colors" href="admin.html" data-auth-role="admin">Admin</a>
+      </nav>
+
+      <div class="flex items-center gap-3">
+        <!-- Notifications bell -->
+        <div class="relative" id="notifWrap">
+          <button
+            id="notifBellBtn"
+            class="relative w-10 h-10 rounded-lg bg-surface-container-lowest border border-outline-variant/30 hover:bg-surface-container-low transition-colors grid place-items-center"
+            aria-label="Notifications"
+            type="button"
+          >
+            <span class="material-symbols-outlined text-[20px] text-on-surface-variant">notifications</span>
+            <span
+              id="notifBellBadge"
+              class="hidden absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 rounded-full bg-primary text-white text-[10px] font-black grid place-items-center"
+              >0</span
+            >
+          </button>
+
+          <div
+            id="notifDropdown"
+            class="hidden absolute right-0 mt-2 w-80 bg-white rounded-xl shadow-xl border border-outline-variant/20 overflow-hidden"
+          >
+            <div class="px-4 py-3 bg-surface-container-low border-b border-outline-variant/20 flex items-center justify-between">
+              <p class="text-sm font-extrabold">Notifications</p>
+              <button id="notifMarkAllReadBtn" class="text-xs font-bold text-primary hover:underline" type="button">
+                Mark all read
+              </button>
+            </div>
+            <div id="notifList" class="max-h-96 overflow-auto"></div>
+          </div>
+        </div>
+
+        <span class="text-xs font-semibold text-on-surface-variant hidden md:inline" id="authUserName"></span>
+        <button
+          class="text-xs font-bold bg-red-50 text-primary px-3 py-1.5 rounded-lg hover:bg-red-100 transition-colors hidden items-center gap-1"
+          id="authLogoutBtn"
+        >
+          <span class="material-symbols-outlined text-[14px]">logout</span> Logout
+        </button>
+      </div>
+    </header>
+
+    <main class="pt-24 pb-32 max-w-7xl mx-auto px-6 flex flex-col lg:flex-row gap-8">
+      <!-- Left Sidebar -->
+      <aside class="w-full lg:w-80 flex-shrink-0 space-y-6">
+        <div>
+          <h1 class="text-3xl font-extrabold tracking-tight mb-2 text-on-surface font-headline">Browse Found Items</h1>
+          <p class="text-sm text-on-surface-variant">Claim items privately with verification — no public details exposed.</p>
+        </div>
+
+        <!-- Tabs -->
+        <div class="grid grid-cols-2 gap-2 bg-surface-container-low rounded-xl p-2 border border-outline-variant/20">
+          <button id="tabAllItems" class="py-2 rounded-lg font-bold text-sm bg-primary text-white">All Items</button>
+          <button id="tabMyReports" class="py-2 rounded-lg font-bold text-sm text-on-surface-variant hover:bg-white transition-colors">
+            My Reports
+          </button>
+        </div>
+
+        <!-- Search -->
+        <div class="relative">
+          <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant/50">search</span>
+          <input
+            id="searchInput"
+            class="w-full bg-surface-container-lowest border border-outline-variant/30 rounded-lg pl-12 pr-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-shadow shadow-sm"
+            placeholder="Search by item name, category, location..."
+            type="text"
+          />
+        </div>
+
+        <!-- Filters -->
+        <div class="space-y-4 bg-white rounded-xl p-4 border border-outline-variant/20">
+          <div class="space-y-2">
+            <label class="text-xs font-black uppercase tracking-widest text-on-surface/60">Status</label>
+            <select id="statusFilter" class="w-full bg-surface-container-lowest border border-outline-variant/30 rounded-lg px-3 py-2 text-sm font-semibold">
+              <option value="all">All Items</option>
+              <option value="unclaimed">Unclaimed Only</option>
+              <option value="matched">Matched</option>
+              <option value="returned">Returned</option>
+            </select>
+          </div>
+
+          <div class="space-y-2">
+            <label class="text-xs font-black uppercase tracking-widest text-on-surface/60">Category</label>
+            <select id="categoryFilter" class="w-full bg-surface-container-lowest border border-outline-variant/30 rounded-lg px-3 py-2 text-sm font-semibold">
+              <option value="all">All Categories</option>
+              <option value="electronics">Electronics</option>
+              <option value="apparel">Apparel</option>
+              <option value="documents">Documents / ID</option>
+              <option value="stationary">Stationary</option>
+              <option value="other">Other</option>
+            </select>
+          </div>
+
+          <div class="space-y-2">
+            <label class="text-xs font-black uppercase tracking-widest text-on-surface/60">Location</label>
+            <select id="locationFilter" class="w-full bg-surface-container-lowest border border-outline-variant/30 rounded-lg px-3 py-2 text-sm font-semibold">
+              <option value="all">All Locations</option>
+            </select>
+          </div>
+
+          <button id="resetFiltersBtn" class="w-full bg-surface-container text-on-surface font-bold py-3 rounded-lg text-sm hover:bg-surface-container-high transition-colors uppercase tracking-widest">
+            Reset Filters
+          </button>
+        </div>
+
+        <div class="text-xs text-on-surface-variant bg-surface-container-low rounded-xl p-4 border border-outline-variant/20">
+          <p class="font-bold mb-1 text-primary">Expiry policy</p>
+          <p>
+            Items unclaimed for <span class="font-bold">30+ days</span> show “Expiring Soon”. After <span class="font-bold">60+ days</span>,
+            items may be donated or discarded.
+          </p>
+        </div>
+      </aside>
+
+      <!-- Right: content -->
+      <section class="flex-1">
+        <div id="activeFilterChips" class="hidden flex items-center gap-2 overflow-x-auto no-scrollbar mb-6 pb-2"></div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6" id="browseItemsGrid">
+          <div class="col-span-full text-center py-16 text-on-surface-variant">
+            <span class="material-symbols-outlined text-4xl mb-2 block animate-pulse">hourglass_top</span>
+            <p class="text-sm font-semibold">Loading items...</p>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- Claim Modal -->
+    <div id="claimModal" class="hidden fixed inset-0 z-[9998]">
+      <div id="claimModalBackdrop" class="absolute inset-0 bg-black/40"></div>
+      <div class="relative z-[9999] min-h-full grid place-items-center p-4">
+        <div class="w-full max-w-lg bg-white rounded-2xl shadow-2xl border border-outline-variant/20 overflow-hidden">
+          <div class="px-6 py-4 bg-surface-container-low border-b border-outline-variant/20 flex items-center justify-between">
+            <div>
+              <p class="text-xs font-black uppercase tracking-widest text-primary/70">Private claim request</p>
+              <h3 class="text-lg font-extrabold">Claim this item</h3>
+            </div>
+            <button id="claimModalCloseBtn" class="w-10 h-10 rounded-lg hover:bg-white transition-colors grid place-items-center" type="button">
+              <span class="material-symbols-outlined">close</span>
+            </button>
+          </div>
+
+          <form id="claimForm" class="p-6 space-y-4">
+            <input type="hidden" id="claimFoundItemId" />
+            <div class="bg-surface-container-low rounded-xl p-4 border border-outline-variant/20">
+              <p class="text-sm font-bold" id="claimItemTitle">Item</p>
+              <p class="text-xs text-on-surface-variant" id="claimItemSub">Details</p>
+            </div>
+
+            <div class="space-y-2">
+              <label class="text-xs font-black uppercase tracking-widest text-on-surface/60" for="claimStudentName">Your name</label>
+              <input id="claimStudentName" class="w-full bg-surface-container-lowest border border-outline-variant/30 rounded-lg px-3 py-2 text-sm font-semibold" required type="text" />
+            </div>
+
+            <div class="space-y-2">
+              <label class="text-xs font-black uppercase tracking-widest text-on-surface/60" for="claimStudentId">Student ID</label>
+              <input id="claimStudentId" class="w-full bg-surface-container-lowest border border-outline-variant/30 rounded-lg px-3 py-2 text-sm font-semibold uppercase" required type="text" />
+            </div>
+
+            <div class="space-y-2">
+              <label class="text-xs font-black uppercase tracking-widest text-on-surface/60" for="claimContactPref">Contact preference</label>
+              <select id="claimContactPref" class="w-full bg-surface-container-lowest border border-outline-variant/30 rounded-lg px-3 py-2 text-sm font-semibold" required>
+                <option value="email">Email</option>
+                <option value="phone">Phone</option>
+                <option value="whatsapp">WhatsApp</option>
+              </select>
+            </div>
+
+            <div class="space-y-2">
+              <label class="text-xs font-black uppercase tracking-widest text-on-surface/60" for="claimVerificationDetail">
+                Verification detail (private)
+              </label>
+              <textarea
+                id="claimVerificationDetail"
+                class="w-full bg-surface-container-lowest border border-outline-variant/30 rounded-lg px-3 py-2 text-sm font-semibold min-h-[110px] resize-none"
+                required
+                placeholder="Enter the hidden detail you used when reporting your lost item."
+              ></textarea>
+            </div>
+
+            <button id="claimSubmitBtn" class="w-full bg-primary text-white font-extrabold py-3 rounded-lg hover:bg-primary-container transition-colors uppercase tracking-widest" type="submit">
+              Submit claim request
+            </button>
+
+            <p class="text-[11px] text-on-surface-variant">
+              Your claim is only visible to the admin and the finder. Approval is required before collection.
+            </p>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- Firebase -->
+    <script src="https://www.gstatic.com/firebasejs/10.10.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.10.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.10.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.10.0/firebase-storage-compat.js"></script>
+    <script src="js/firebase-init.js"></script>
+    <script src="js/auth-guard.js"></script>
+    <script src="js/browse.js"></script>
+  </body>
+</html>
